@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+import os
 from pathlib import Path
 import yaml
 import logging
@@ -20,8 +21,18 @@ app.config.from_object(BaseConfig)
 
 dhondt_api = Api(app)
 
+
+log_level = os.getenv("LOG_LEVEL", "").upper().strip()
+if "DEBUG" == log_level:
+    log_level = logging.DEBUG
+elif "ERROR" == log_level:
+    log_level = logging.ERROR
+else:
+    log_level = logging.INFO
+
+
 logging.basicConfig(
-    level=logging.DEBUG, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    level=log_level, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
 # Logger de la aplicación

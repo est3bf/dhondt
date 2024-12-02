@@ -3,6 +3,8 @@ version: '3.7'
 services:
 
     dhondt:
+        environment:
+            LOG_LEVEL: DEBUG 
         build:
             target: debug
       

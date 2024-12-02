@@ -1,5 +1,10 @@
 import logging
 
+from dhondt.db.dhondt_repository import DhondtRepository
+from dhondt.dhondt_service.exceptions import (
+    DistrictsNotFoundError,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -30,3 +35,18 @@ def dhondt_calculation(political_parties, seats):
     ]
     logger.debug("Dhondt calculations result %s", result)
     return result
+
+
+class DhondtService:
+    def __init__(self, repository: DhondtRepository):
+        self.repository = repository
+
+    def get_districts(self, scrutiny_date=None, district_id=None):
+        districts = self.repository.get_districts(scrutiny_date, district_id)
+        if districts is None:
+            raise DistrictsNotFoundError(
+                f"Districts with {scrutiny_date=} and {district_id=} not found!"
+            )
+        if district_id:
+            return districts[0]
+        return {"districts": districts}

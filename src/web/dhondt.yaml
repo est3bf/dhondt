@@ -1,0 +1,142 @@
+openapi: 3.0.3
+info:
+  title: D'Hondt Method System
+  description: |- 
+    Calculates the distribution of seats using the D'Hondt method.
+    
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: est3ban.faye@gmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+externalDocs:
+  description: Find out more about the D'Hondt method.
+  url: https://es.wikipedia.org/wiki/Sistema_D%27Hondt
+servers:
+  - url: http://localhost:5000/dhondt/v1
+  
+tags:
+  - name: Configuration
+    description: Set the D'Hondt method for the particular electoral district
+
+  - name: Upgrading vote
+    description: Set the votes of a political party list of some district
+      
+  - name: Seats Result
+    description: > 
+      Get information about the seat quantity of each political party list electoral
+      resulting of scrutiny for a given electoral district.
+    
+
+###########################################################
+# PATHS
+###########################################################
+paths:
+
+########################
+# Configurations
+########################
+  /districts:
+    get:
+      tags: 
+        - Configuration
+      summary: Returns a list of electoral district
+      operationId: getDistricts
+      description: >
+        Returns a list of electoral district sorted by name. 
+        Allows to filter electoral districts by scrutiny.
+
+  /districts/{districtId}:
+    get:
+      tags: 
+        - Configuration
+      summary: Returns the details of a specific electoral district
+      operationId: getDistrict
+      description: ''
+          
+  /districts/{districtId}/political-party-lists:
+    get:
+      tags: 
+        - Configuration
+      summary: Returns a list of political party list for the given electoral district
+      operationId: getPoliticalPartyList
+      description: >
+        Return a list of political party list for the given electoral district sorted by name. 
+            
+    post:
+      tags: 
+        - Configuration
+      summary: Create a political party list to a specific electoral district
+      description: ''
+      operationId: createPoliticalPartyList
+  
+  /districts/{districtId}/political-party-lists/{pplistId}:
+    get:
+      summary: Get a political party (list) to a specific electoral district
+      tags: 
+        - Configuration
+      operationId: getPoliticalPartyList
+
+    put:
+      summary: Update a political party (list) to a specific electoral district
+      tags: 
+        - Configuration
+      operationId: updatePoliticalPartyList
+
+  /districts/{districtId}/scrutinies:
+    get:
+      tags: 
+        - Configuration
+      summary: Returns a list of scrutinies
+      operationId: getScrutinies
+      description: >
+        Return a list of scrutiny sorted by date. 
+
+    post:
+      tags: 
+        - Configuration
+      summary: Create a scrutiny for a specific electoral district
+      description: ''
+      operationId: createScrutiny
+
+  /districts/{districtId}/scrutinies/{scrutinyId}:
+    get:
+      tags: 
+        - Configuration
+      summary: Returns the details of a specific scrutiny
+      operationId: getScrutiny
+      description: ''
+          
+########################
+# Upgrading votes 
+########################
+  /districts/{districtId}/political-party-lists/{pplistId}/vote:
+    put:
+      summary: Update the quantity votes of political party (list) for a specific electoral district
+      tags: 
+        - Upgrading vote
+      operationId: updatePoliticalPartyListVote
+      description: ''
+ 
+########################
+# Seats Result 
+########################
+  /districts/{districtId}/scrutinies/{scrutinyId}/seats-status:
+    get:
+      summary: Returns last calculation of seats for a specific electoral district
+      tags: 
+        - Seats Result
+      operationId: getLastSets
+      description: ''
+
+    post:
+      summary: Calculate sets for a specific electoral district
+      tags: 
+        - Seats Result
+      operationId: calculateSets
+      description: >
+          Calculate sets for each political party list for a given specific electoral district scrutiny.
+          Uses the votes at the time of calling.
+          

@@ -47,16 +47,55 @@ paths:
       description: >
         Returns a list of electoral district sorted by name. 
         Allows to filter electoral districts by scrutiny.
-
+      parameters:
+        - in: query
+          name: scrutinyDate
+          required: false
+          schema:
+            type: string
+            format: date-time
+            
+      responses:
+        '200':
+          description: A JSON array of electoral districts
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Districts'
+            
   /districts/{districtId}:
+    parameters:
+      - in: path
+        name: districtId
+        required: true
+        schema:
+          type: integer
+
     get:
       tags: 
         - Configuration
       summary: Returns the details of a specific electoral district
       operationId: getDistrict
       description: ''
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/District'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
           
   /districts/{districtId}/political-party-lists:
+    parameters:
+      - in: path
+        name: districtId
+        required: true
+        schema:
+          type: integer
     get:
       tags: 
         - Configuration
@@ -64,6 +103,23 @@ paths:
       operationId: getPoliticalPartyList
       description: >
         Return a list of political party list for the given electoral district sorted by name. 
+      responses:
+        '200':
+          description: A JSON array of political party list
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  politicalPartyLists:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/PoliticalPartyList'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
             
     post:
       tags: 
@@ -71,21 +127,85 @@ paths:
       summary: Create a political party list to a specific electoral district
       description: ''
       operationId: createPoliticalPartyList
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePoliticalPartyList'
+      responses:
+        '201':
+          description: Political party list created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoliticalPartyList'
+        '404':
+          $ref: '#/components/responses/NotFound'          
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
   
   /districts/{districtId}/political-party-lists/{pplistId}:
+    parameters:
+      - in: path
+        name: districtId
+        required: true
+        schema:
+          type: integer
+      - in: path
+        name: pplistId
+        required: true
+        schema:
+          type: integer
+
     get:
       summary: Get a political party (list) to a specific electoral district
       tags: 
         - Configuration
       operationId: getPoliticalPartyList
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoliticalPartyList'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
 
     put:
       summary: Update a political party (list) to a specific electoral district
       tags: 
         - Configuration
       operationId: updatePoliticalPartyList
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePoliticalPartyList'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PoliticalPartyList'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
+
 
   /districts/{districtId}/scrutinies:
+    parameters:
+      - in: path
+        name: districtId
+        required: true
+        schema:
+          type: integer
     get:
       tags: 
         - Configuration
@@ -93,43 +213,161 @@ paths:
       operationId: getScrutinies
       description: >
         Return a list of scrutiny sorted by date. 
-
+      parameters:
+        - in: query
+          name: date
+          required: false
+          schema:
+            type: string
+            format: date-time
+            
+      responses:
+        '200':
+          description: A JSON array of scrutinies
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                properties:
+                  scrutinies:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Scrutiny'                              
     post:
       tags: 
         - Configuration
       summary: Create a scrutiny for a specific electoral district
       description: ''
       operationId: createScrutiny
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateScrutiny'
+      responses:
+        '201':
+          description: Scrutiny created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scrutiny'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
 
   /districts/{districtId}/scrutinies/{scrutinyId}:
+    parameters:
+      - in: path
+        name: districtId
+        required: true
+        schema:
+          type: integer
+      - in: path
+        name: scrutinyId
+        required: true
+        schema:
+          type: integer          
     get:
       tags: 
         - Configuration
       summary: Returns the details of a specific scrutiny
       operationId: getScrutiny
       description: ''
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scrutiny'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'          
           
 ########################
 # Upgrading votes 
 ########################
   /districts/{districtId}/political-party-lists/{pplistId}/vote:
+    parameters:
+      - in: path
+        name: districtId
+        required: true
+        schema:
+          type: integer
+      - in: path
+        name: pplistId
+        required: true
+        schema:
+          type: integer
     put:
       summary: Update the quantity votes of political party (list) for a specific electoral district
       tags: 
         - Upgrading vote
       operationId: updatePoliticalPartyListVote
       description: ''
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:  
+              type: object
+              additionalProperties: false
+              properties:
+                votes:
+                  type: integer
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeatsResult'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
  
 ########################
 # Seats Result 
 ########################
   /districts/{districtId}/scrutinies/{scrutinyId}/seats-status:
+    parameters:
+      - in: path
+        name: districtId
+        required: true
+        schema:
+          type: integer
+      - in: path
+        name: scrutinyId
+        required: true
+        schema:
+          type: integer
+
     get:
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
       summary: Returns last calculation of seats for a specific electoral district
       tags: 
         - Seats Result
       operationId: getLastSets
       description: ''
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeatsResults'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
     post:
       summary: Calculate sets for a specific electoral district
@@ -139,4 +377,177 @@ paths:
       description: >
           Calculate sets for each political party list for a given specific electoral district scrutiny.
           Uses the votes at the time of calling.
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SeatsResults'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
           
+#######################################################
+# Components
+#######################################################
+components:
+
+##############
+# Responses
+##############
+  responses:
+    NotFound:
+      description: The specified resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    UnprocessableEntity:
+      description: The payload contains invalid values.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+            
+##############
+# Schemas
+##############
+  schemas:
+    Error:
+      type: object
+      properties:
+        detail:
+          oneOf:
+            - type: string
+            - type: array
+      required:
+        - detail
+      additionalProperties: false
+      
+    CreatePoliticalPartyList:
+      type: object
+      additionalProperties: false
+      required:
+        - name
+        - electors     
+      properties:
+        name:
+          type: string
+        electors:
+          type: integer
+
+    PoliticalPartyList:
+       allOf: 
+          - type: object
+            required:
+              - id
+              - districtId
+              - votes
+            properties:
+              id:
+                type: integer
+              districtId:
+                type: integer
+              votes:
+                type: integer
+          - $ref: '#/components/schemas/CreatePoliticalPartyList'
+
+    District:
+      additionalProperties: false
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+
+    Districts:
+      additionalProperties: false
+      type: object
+      required:
+        - districts
+      properties:
+        districts:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/District'
+    
+    CreateScrutiny:
+      type: object
+      additionalProperties: false
+      required:
+        - seats
+        - name
+        - votingDate
+        - scrutinyDate
+      properties:
+        seats:
+          type: integer
+        name:
+          type: string
+        votingDate:
+          type: string
+          format: date-time
+        scrutinyDate:
+          type: string
+          format: date-time
+      
+    Scrutiny:
+       allOf: 
+          - type: object
+            required:
+              - id
+              - districtId
+            properties:
+              id:
+                type: integer
+              districtId:
+                type: integer
+          - $ref: '#/components/schemas/CreateScrutiny'
+
+    SeatsResult:
+      type: object
+      additionalProperties: false
+      required:
+        - pplistId
+        - pplistName
+        - seats        
+      properties:
+        pplistId:
+          type: integer
+        pplistName:
+          type: string
+        seats:
+          type: integer
+    
+    SeatsResults:
+      additionalProperties: false
+      type: object
+      required:
+        - resultId
+        - districtId
+        - scrutinyId
+        - scrutinyName
+        - calculationDate
+        - seatsResults
+      properties:
+        idResult:
+          type: integer
+        districtId:
+          type: integer
+        scrutinyName:
+          type: string
+        calculationDate:
+          type: string
+          format: date-time
+        seatsResults:
+          type: array
+          minItems: 1
+          items:            
+            $ref: '#/components/schemas/SeatsResult'

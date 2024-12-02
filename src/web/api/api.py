@@ -10,13 +10,18 @@ from dhondt.db.dhondt_repository import DhondtRepository
 from dhondt.dhondt_service.dhondt_service import DhondtService
 from dhondt.dhondt_service.exceptions import (
     DistrictsNotFoundError,
+    PoliticalPartyListsNotFoundError,
 )
 
 from dhondt.web.api.schemas import (
+    CreatePoliticalPartyList,
+    PoliticalPartyList,
+    GetPoliticalPartyLists,
     District,
     GetDistricts,
     GetDistrictsParameters,
 )
+
 
 logger = logging.getLogger(__name__)
 
@@ -72,20 +77,108 @@ class DistrictRoute(MethodView):
 
 @blueprint.route("/dhondt/v1/districts/<districtId>/political-party-lists")
 class PoliticalPartyListsRoute(MethodView):
+    @blueprint.response(status_code=200, schema=GetPoliticalPartyLists)
     def get(self, districtId):
-        pass
+        try:
+            with get_db_session() as session:
+                repo = DhondtRepository(session)
+                dhondt_service = DhondtService(repo)
+                results = dhondt_service.get_political_party_lists(
+                    district_id=districtId
+                )
+            errors = GetPoliticalPartyLists().validate(results)
+            if errors:
+                raise ValidationError(errors)
+            return jsonify(results)
 
+        except PoliticalPartyListsNotFoundError:
+            abort(
+                404, description=f"Political Party Lists with {districtId=} not found!"
+            )
+
+    @blueprint.arguments(CreatePoliticalPartyList)
+    @blueprint.response(status_code=201, schema=PoliticalPartyList)
     def post(self, payload, districtId):
-        pass
+        try:
+            with get_db_session() as session:
+                repo = DhondtRepository(session)
+                dhondt_service = DhondtService(repo)
+                results = dhondt_service.create_political_party_list(
+                    districtId=districtId, **payload
+                )
+
+            logger.debug(" Validating %s", results)
+            errors = PoliticalPartyList().validate(results)
+            if errors:
+                raise ValidationError(errors)
+            return jsonify(results)
+        except DistrictsNotFoundError:
+            abort(
+                404,
+                description="District Id {} not found!".format(
+                    payload.get("districtId")
+                ),
+            )
 
 
 @blueprint.route("/dhondt/v1/districts/<districtId>/political-party-lists/<pplistId>")
 class PoliticalPartyListRoute(MethodView):
+    @blueprint.response(status_code=200, schema=PoliticalPartyList)
     def get(self, districtId, pplistId):
-        pass
+        try:
+            with get_db_session() as session:
+                repo = DhondtRepository(session)
+                dhondt_service = DhondtService(repo)
+                results = dhondt_service.get_political_party_lists(
+                    district_id=districtId, pplist_id=pplistId
+                )
+            logger.info("A validar %s", results)
+            errors = PoliticalPartyList().validate(results)
+            if errors:
+                raise ValidationError(errors)
+            return jsonify(results)
+        except PoliticalPartyListsNotFoundError:
+            abort(
+                404,
+                description=(
+                    f"Political Party Lists with district id {districtId} not found!"
+                ),
+            )
 
+    @blueprint.arguments(CreatePoliticalPartyList)
+    @blueprint.response(status_code=200, schema=PoliticalPartyList)
     def put(self, parameters, districtId, pplistId):
-        pass
+        try:
+            with get_db_session() as session:
+                repo = DhondtRepository(session)
+                dhondt_service = DhondtService(repo)
+                results = dhondt_service.update_political_party_list(
+                    district_id=districtId,
+                    pplist_id=pplistId,
+                    name=parameters.get("name"),
+                    electors=parameters.get("electors"),
+                )
+            logger.info("A validar %s", results)
+            errors = PoliticalPartyList().validate(results)
+            if errors:
+                raise ValidationError(errors)
+            return jsonify(results)
+
+        except PoliticalPartyListsNotFoundError:
+            abort(
+                404,
+                description=(
+                    f"Political Party Lists with district id {pplistId} not found!"
+                ),
+            )
+        except DistrictsNotFoundError:
+            id_district = parameters.get("districtId")
+            abort(
+                404,
+                description=(
+                    f"Political Party Lists with district id {id_district} not found!"
+                ),
+            )
 
 
 @blueprint.route("/dhondt/v1/districts/<districtId>/scrutinies")

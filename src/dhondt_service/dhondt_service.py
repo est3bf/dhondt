@@ -3,6 +3,7 @@ import logging
 from dhondt.db.dhondt_repository import DhondtRepository
 from dhondt.dhondt_service.exceptions import (
     DistrictsNotFoundError,
+    PoliticalPartyListsNotFoundError,
 )
 
 logger = logging.getLogger(__name__)
@@ -50,3 +51,44 @@ class DhondtService:
         if district_id:
             return districts[0]
         return {"districts": districts}
+
+    def get_political_party_lists(self, district_id, pplist_id=None):
+        political_party_lists = self.repository.get_political_party_lists(
+            district_id=district_id,
+            pplist_id=pplist_id,
+        )
+        if political_party_lists is None:
+            raise PoliticalPartyListsNotFoundError(
+                f"Political Party Lists with {district_id=} and {pplist_id=} not found!"
+            )
+        if pplist_id:
+            return political_party_lists[0]
+        return {"politicalPartyLists": political_party_lists}
+
+    def create_political_party_list(self, name, electors, districtId):
+        result = self.repository.create_political_party_list(
+            district_id=districtId,
+            name=name,
+            electors=electors,
+        )
+        if not result:
+            raise PoliticalPartyListsNotFoundError(
+                f"Political Party Lists with {districtId=} not found!"
+            )
+        return result
+
+    def update_political_party_list(self, pplist_id, district_id, name, electors):
+        political_party_lists = self.repository.get_political_party_lists(
+            district_id=district_id,
+            pplist_id=pplist_id,
+        )
+        if not political_party_lists or len(political_party_lists) > 1:
+            raise PoliticalPartyListsNotFoundError(
+                f"Political Party Lists with {district_id=} and {pplist_id=} not found!"
+            )
+        result = self.repository.update_political_party_list(
+            political_party_lists[0]["id"],
+            name=name,
+            electors=electors,
+        )
+        return result

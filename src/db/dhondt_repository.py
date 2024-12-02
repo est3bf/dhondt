@@ -1,10 +1,14 @@
 import os
 import logging
 
+from sqlalchemy.exc import (
+    NoReferencedColumnError,
+)
 from dhondt.db.controller import DB
 from dhondt.db.tabledefs import (
     ScrutinyTable,
     DistrictTable,
+    PoliticalPartyListTable,
 )
 
 logger = logging.getLogger(__name__)
@@ -39,3 +43,46 @@ class DhondtRepository:
             results = [record.dict() for record in records]
         logger.info("values: %s", results)
         return results
+
+    def get_political_party_lists(self, district_id, pplist_id=None):
+        query = (
+            self.session.query(PoliticalPartyListTable)
+            .join(
+                DistrictTable, DistrictTable.id == PoliticalPartyListTable.district_id
+            )
+            .filter(district_id == DistrictTable.id)
+        )
+        if pplist_id:
+            logger.info("get_political_party_lists with pplist_id: %s", pplist_id)
+            query = query.filter(pplist_id == PoliticalPartyListTable.id)
+        records = query.all()
+        logger.info("records: %s", records)
+        results = None
+        if records:
+            results = [record.dict() for record in records]
+        logger.info("values: %s", results)
+        return results
+
+    def create_political_party_list(self, name, electors, district_id):
+        try:
+            record = PoliticalPartyListTable(
+                district_id=district_id,
+                name=name,
+                electors=electors,
+            )
+            self.session.add(record)
+            self.session.commit()
+            return record.dict()
+        except NoReferencedColumnError:
+            return None
+
+    def update_political_party_list(self, pplist_id, **kwargs):
+        record = (
+            self.session.query(PoliticalPartyListTable)
+            .filter(pplist_id == PoliticalPartyListTable.id)
+            .first()
+        )
+        for argn, argv in kwargs.items():
+            setattr(record, argn, argv)
+        self.session.commit()
+        return record.dict()

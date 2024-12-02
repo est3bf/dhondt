@@ -1,0 +1,7 @@
+*.swp
+*.pyc
+
+.dbeaver/
+.vscode
+builds/
+dhondt_method.egg-info/

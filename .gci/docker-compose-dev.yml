@@ -1,0 +1,14 @@
+version: '3.7'
+
+services:
+
+    dhondt:
+        build:
+            target: debug
+      
+
+
+
+volumes: 
+    data_postgres: 
+        external: true

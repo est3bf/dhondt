@@ -1,0 +1,44 @@
+version: '3.7'
+
+x-common: &common
+    deploy:
+        restart_policy:
+            condition: any
+            delay: 5s
+            window: 15s
+    environment:
+        DB_URL: ${DB_URL:-localhost} 
+        DB_NAME: ${DB_NAME:-dhondt}
+        DB_USER: ${DB_USER:-postgres}
+        DB_PASS: ${DB_PASS:-postgres}
+        DB_PORT: ${DB_PORT:-5432}
+
+services:
+    postgres:
+        <<: *common
+        image: ${POSTGRES_IMAGE:-postgres}
+        volumes:
+            - data_postgres:/var/lib/postgresql/data
+        ports:
+            - "${DB_PORT:-5432}:5432" 
+        environment:
+            - POSTGRES_PASSWORD=postgres
+
+    dhondt:
+        <<: *common        
+        build:
+            context: ..
+            dockerfile: .gci/Dockerfile
+            target: production
+        ports:
+            - "5000:5000"
+        depends_on:
+            - postgres
+        network_mode: host
+        
+
+
+
+volumes: 
+    data_postgres: 
+        external: true

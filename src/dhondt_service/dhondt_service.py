@@ -124,7 +124,7 @@ class DhondtService:
         return result
 
     def get_seats_results(self, district_id, scrutiny_id, limit=None):
-        logger.info("get_seats_results limit [ %s ] received ", limit)
+        logger.debug("get_seats_results limit [ %s ] received ", limit)
         seats_results = self.repository.get_seats_results(
             district_id=district_id, scrutiny_id=scrutiny_id, limit=limit
         )
@@ -155,13 +155,13 @@ class DhondtService:
             political_parties=political_party_lists, seats=seats
         )
 
-        logger.info("dhondt_calculation result received %s", result)
+        logger.debug("dhondt_calculation result received %s", result)
 
         ret = self.repository.create_dhondt_result(
             scrutiny_id,
             result,
         )
-        logger.info("create_dhondt_result received %s", ret)
+        logger.debug("create_dhondt_result received %s", ret)
         ret.update(
             {
                 "districtId": district_id,
@@ -169,5 +169,5 @@ class DhondtService:
                 "scrutinyName": scrutiny[0]["name"],
             }
         )
-        logger.info("Returning.. %s", ret)
+        logger.debug("Returning.. %s", ret)
         return ret

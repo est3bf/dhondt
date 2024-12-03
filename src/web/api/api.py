@@ -75,7 +75,6 @@ class DistrictRoute(MethodView):
                 repo = DhondtRepository(session)
                 dhondt_service = DhondtService(repo)
                 results = dhondt_service.get_districts(district_id=districtId)
-            logger.info("A validar %s", results)
             errors = District().validate(results)
             if errors:
                 raise ValidationError(errors)
@@ -142,7 +141,6 @@ class PoliticalPartyListRoute(MethodView):
                 results = dhondt_service.get_political_party_lists(
                     district_id=districtId, pplist_id=pplistId
                 )
-            logger.info("A validar %s", results)
             errors = PoliticalPartyList().validate(results)
             if errors:
                 raise ValidationError(errors)
@@ -168,7 +166,6 @@ class PoliticalPartyListRoute(MethodView):
                     name=parameters.get("name"),
                     electors=parameters.get("electors"),
                 )
-            logger.info("A validar %s", results)
             errors = PoliticalPartyList().validate(results)
             if errors:
                 raise ValidationError(errors)
@@ -251,7 +248,6 @@ class ScrutinyRoute(MethodView):
                 results = dhondt_service.get_scrutinies(
                     district_id=districtId, scrutiny_id=scrutinyId
                 )
-            logger.info("A validar %s", results)
             errors = Scrutiny().validate(results)
             if errors:
                 raise ValidationError(errors)

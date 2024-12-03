@@ -31,20 +31,20 @@ class DhondtRepository:
     def get_districts(self, scrutiny_date, district_id):
         query = self.session.query(DistrictTable)
         if district_id:
-            logger.info("get_districts with district_id: %s", district_id)
+            logger.debug("get_districts with district_id: %s", district_id)
             query = query.filter(district_id == DistrictTable.id)
         if scrutiny_date:
-            logger.info("get_districts with scrutiny_date: %s", scrutiny_date)
+            logger.debug("get_districts with scrutiny_date: %s", scrutiny_date)
             query = query.join(
                 ScrutinyTable, ScrutinyTable.district_id == DistrictTable.id
             ).filter(scrutiny_date == ScrutinyTable.scrutiny_date)
 
         records = query.all()
-        logger.info("records: %s", records)
+        logger.debug("records: %s", records)
         results = None
         if records:
             results = [record.dict() for record in records]
-        logger.info("values: %s", results)
+        logger.debug("values: %s", results)
         return results
 
     def get_political_party_lists(self, district_id, pplist_id=None):
@@ -56,14 +56,14 @@ class DhondtRepository:
             .filter(district_id == DistrictTable.id)
         )
         if pplist_id:
-            logger.info("get_political_party_lists with pplist_id: %s", pplist_id)
+            logger.debug("get_political_party_lists with pplist_id: %s", pplist_id)
             query = query.filter(pplist_id == PoliticalPartyListTable.id)
         records = query.all()
-        logger.info("records: %s", records)
+        logger.debug("records: %s", records)
         results = None
         if records:
             results = [record.dict() for record in records]
-        logger.info("values: %s", results)
+        logger.debug("values: %s", results)
         return results
 
     def create_political_party_list(self, name, electors, district_id):
@@ -97,17 +97,17 @@ class DhondtRepository:
             .filter(district_id == DistrictTable.id)
         )
         if scrutiny_id:
-            logger.info("get_scrutinies with scrutiny_id: %s", scrutiny_id)
+            logger.debug("get_scrutinies with scrutiny_id: %s", scrutiny_id)
             query = query.filter(scrutiny_id == ScrutinyTable.id)
         if scrutiny_date:
-            logger.info("get_scrutinies with scrutiny_date: %s", scrutiny_date)
+            logger.debug("get_scrutinies with scrutiny_date: %s", scrutiny_date)
             query = query.filter(scrutiny_date == ScrutinyTable.scrutiny_date)
         records = query.all()
-        logger.info("records: %s", records)
+        logger.debug("records: %s", records)
         results = None
         if records:
             results = [record.dict() for record in records]
-        logger.info("values: %s", results)
+        logger.debug("values: %s", results)
         return results
 
     def create_scrutiny(self, district_id, name, voting_date, scrutiny_date, seats):
@@ -138,7 +138,7 @@ class DhondtRepository:
         return record.dict()
 
     def get_seats_results(self, district_id, scrutiny_id, limit=None):
-        logger.info(
+        logger.debug(
             "get_seats_results with district_id %d and scrutiny_id: %s",
             district_id,
             scrutiny_id,
@@ -152,5 +152,5 @@ class DhondtRepository:
         result = None
         if records:
             result = [res.dict() for res in records]
-        logger.info("result: %s", result)
+        logger.debug("result: %s", result)
         return result

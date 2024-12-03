@@ -12,6 +12,7 @@ from dhondt.dhondt_service.exceptions import (
     DistrictsNotFoundError,
     PoliticalPartyListsNotFoundError,
     ScrutinyNotFoundError,
+    SeatsResultsNotFoundError,
 )
 
 from dhondt.web.api.schemas import (
@@ -23,8 +24,12 @@ from dhondt.web.api.schemas import (
     CreateScrutiny,
     Scrutiny,
     GetScrutinies,
+    SeatsResults,
+    TotalSeatsResults,
     GetDistrictsParameters,
     GetScrutiniesParameters,
+    UpgradeVoteParameters,
+    GetResultsParameters,
 )
 
 
@@ -263,8 +268,29 @@ class ScrutinyRoute(MethodView):
     "/dhondt/v1/districts/<districtId>/political-party-lists/<pplistId>/vote",
     methods=["PUT"],
 )
+@blueprint.response(status_code=200, schema=PoliticalPartyList)
+@blueprint.arguments(UpgradeVoteParameters)
 def upgrade_vote(parameters, districtId, pplistId):
-    pass
+    try:
+        with get_db_session() as session:
+            repo = DhondtRepository(session)
+            dhondt_service = DhondtService(repo)
+            results = dhondt_service.update_vote(
+                district_id=districtId,
+                pplist_id=pplistId,
+                votes=parameters.get("votes"),
+            )
+        logger.debug(" Validating %s", results)
+        errors = PoliticalPartyList().validate(results)
+        if errors:
+            raise ValidationError(errors)
+        return jsonify(results)
+
+    except PoliticalPartyListsNotFoundError:
+        abort(
+            404,
+            description=f"Political Party Lists with pplist id {pplistId} not found!",
+        )
 
 
 ########################
@@ -274,8 +300,51 @@ def upgrade_vote(parameters, districtId, pplistId):
     "/dhondt/v1/districts/<districtId>/scrutinies/<scrutinyId>/seats-status"
 )
 class CalculateSeatsRoute(MethodView):
+    @blueprint.response(status_code=200, schema=TotalSeatsResults)
+    @blueprint.arguments(GetResultsParameters, location="query")
     def get(self, parameters, districtId, scrutinyId):
-        pass
+        try:
+            with get_db_session() as session:
+                repo = DhondtRepository(session)
+                dhondt_service = DhondtService(repo)
+                results = dhondt_service.get_seats_results(
+                    district_id=districtId,
+                    scrutiny_id=scrutinyId,
+                    limit=parameters.get("limit"),
+                )
+            logger.debug(" Validating %s", results)
+            errors = TotalSeatsResults().validate(results)
+            if errors:
+                raise ValidationError(errors)
+            return jsonify(results)
 
+        except SeatsResultsNotFoundError:
+            abort(
+                404,
+                description=(
+                    f"Seats results not found for {districtId=} and {scrutinyId=}!"
+                ),
+            )
+
+    @blueprint.response(status_code=200, schema=SeatsResults)
     def post(self, districtId, scrutinyId):
-        pass
+        try:
+            with get_db_session() as session:
+                repo = DhondtRepository(session)
+                dhondt_service = DhondtService(repo)
+                results = dhondt_service.calculate_seats(
+                    district_id=districtId, scrutiny_id=scrutinyId
+                )
+            logger.debug(" Validating %s", results)
+            errors = SeatsResults().validate(results)
+            if errors:
+                raise ValidationError(errors)
+            return jsonify(results)
+
+        except ScrutinyNotFoundError:
+            abort(
+                404,
+                description=(
+                    f"Scrutiny with scrutiny {districtId=} and {scrutinyId} not found!"
+                ),
+            )

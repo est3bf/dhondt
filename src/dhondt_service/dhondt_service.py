@@ -5,6 +5,7 @@ from dhondt.dhondt_service.exceptions import (
     DistrictsNotFoundError,
     PoliticalPartyListsNotFoundError,
     ScrutinyNotFoundError,
+    SeatsResultsNotFoundError,
 )
 
 logger = logging.getLogger(__name__)
@@ -107,3 +108,66 @@ class DhondtService:
         if scrutiny_id:
             return scrutinies[0]
         return {"scrutinies": scrutinies}
+
+    def update_vote(self, district_id, pplist_id, votes):
+        political_party_lists = self.repository.get_political_party_lists(
+            district_id=district_id, pplist_id=pplist_id
+        )
+        if not political_party_lists:
+            raise PoliticalPartyListsNotFoundError(
+                f"Political Party Lists with {district_id=} not found!"
+            )
+        result = self.repository.update_political_party_list(
+            political_party_lists[0]["id"],
+            votes=votes,
+        )
+        return result
+
+    def get_seats_results(self, district_id, scrutiny_id, limit=None):
+        logger.info("get_seats_results limit [ %s ] received ", limit)
+        seats_results = self.repository.get_seats_results(
+            district_id=district_id, scrutiny_id=scrutiny_id, limit=limit
+        )
+        if seats_results is None:
+            raise SeatsResultsNotFoundError(
+                f"Scrutiny with {district_id=} and {scrutiny_id=} not found!"
+            )
+        return {"scrutinyResults": seats_results}
+
+    def calculate_seats(self, district_id, scrutiny_id):
+        scrutiny = self.repository.get_scrutinies(
+            district_id=district_id, scrutiny_id=scrutiny_id
+        )
+        if not scrutiny:
+            raise ScrutinyNotFoundError(f"Scrutiny with {scrutiny_id=} not found!")
+
+        seats = scrutiny[0]["seats"]
+
+        political_party_lists = self.repository.get_political_party_lists(
+            district_id=district_id
+        )
+        if not political_party_lists:
+            raise PoliticalPartyListsNotFoundError(
+                f"Political Party Lists with {district_id=} not found!"
+            )
+
+        result = dhondt_calculation(
+            political_parties=political_party_lists, seats=seats
+        )
+
+        logger.info("dhondt_calculation result received %s", result)
+
+        ret = self.repository.create_dhondt_result(
+            scrutiny_id,
+            result,
+        )
+        logger.info("create_dhondt_result received %s", ret)
+        ret.update(
+            {
+                "districtId": district_id,
+                "seatsResults": result,
+                "scrutinyName": scrutiny[0]["name"],
+            }
+        )
+        logger.info("Returning.. %s", ret)
+        return ret

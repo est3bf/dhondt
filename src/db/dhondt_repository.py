@@ -1,5 +1,6 @@
 import os
 import logging
+from datetime import datetime
 
 from sqlalchemy.exc import (
     NoReferencedColumnError,
@@ -9,6 +10,8 @@ from dhondt.db.tabledefs import (
     ScrutinyTable,
     DistrictTable,
     PoliticalPartyListTable,
+    SeatsPoliticalPartiesTable,
+    DhondtResultTable,
 )
 
 logger = logging.getLogger(__name__)
@@ -121,3 +124,33 @@ class DhondtRepository:
             return record.dict()
         except NoReferencedColumnError:
             return None
+
+    def create_dhondt_result(self, scrutiny_id, seats_result):
+        record = DhondtResultTable(scrutiny_id=scrutiny_id, result_date=datetime.now())
+        for res in seats_result:
+            record.seatspoliticalparties.append(
+                SeatsPoliticalPartiesTable(
+                    politicalpartylist_id=res["pplistId"], seats=res["seats"]
+                )
+            )
+        self.session.add(record)
+        self.session.commit()
+        return record.dict()
+
+    def get_seats_results(self, district_id, scrutiny_id, limit=None):
+        logger.info(
+            "get_seats_results with district_id %d and scrutiny_id: %s",
+            district_id,
+            scrutiny_id,
+        )
+        records = (
+            self.session.query(DhondtResultTable)
+            .filter(DhondtResultTable.scrutiny_id == scrutiny_id)
+            .limit(limit)
+            .all()
+        )
+        result = None
+        if records:
+            result = [res.dict() for res in records]
+        logger.info("result: %s", result)
+        return result

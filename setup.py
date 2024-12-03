@@ -37,6 +37,15 @@ setup(
     package_dir={
         "dhondt": "src",
     },
+    package_data={
+        "dhondt": [
+            "web/*.yaml",
+            "web/templates/*",
+            "web/static/js/*",
+            "web/static/css/*",
+            "web/static/webfonts/*",
+        ],
+    },
     classifiers=[
         "Development Status :: 1 - Beta",
         "Environment :: Console",

@@ -10,6 +10,7 @@ from flask_smorest import Api
 
 from dhondt.web.api.config import BaseConfig
 import dhondt.web.api.api as api
+import dhondt.web.views as views
 
 
 SPEC_NAMEFILE = "dhondt.yaml"
@@ -37,6 +38,10 @@ logging.basicConfig(
 
 # Logger de la aplicación
 logger = logging.getLogger(__name__)
+
+# register views
+for view_blueprint in views.blueprints:
+    app.register_blueprint(view_blueprint)
 
 # register api
 dhondt_api.register_blueprint(api.blueprint)

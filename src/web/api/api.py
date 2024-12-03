@@ -11,6 +11,7 @@ from dhondt.dhondt_service.dhondt_service import DhondtService
 from dhondt.dhondt_service.exceptions import (
     DistrictsNotFoundError,
     PoliticalPartyListsNotFoundError,
+    ScrutinyNotFoundError,
 )
 
 from dhondt.web.api.schemas import (
@@ -19,7 +20,11 @@ from dhondt.web.api.schemas import (
     GetPoliticalPartyLists,
     District,
     GetDistricts,
+    CreateScrutiny,
+    Scrutiny,
+    GetScrutinies,
     GetDistrictsParameters,
+    GetScrutiniesParameters,
 )
 
 
@@ -183,17 +188,72 @@ class PoliticalPartyListRoute(MethodView):
 
 @blueprint.route("/dhondt/v1/districts/<districtId>/scrutinies")
 class ScrutiniesRoute(MethodView):
-    def get(self, districtId):
-        pass
+    @blueprint.arguments(GetScrutiniesParameters, location="query")
+    @blueprint.response(status_code=200, schema=GetScrutinies)
+    def get(self, parameters, districtId):
+        scrutiny_date = parameters.get("scrutinyDate")
+        try:
+            with get_db_session() as session:
+                repo = DhondtRepository(session)
+                dhondt_service = DhondtService(repo)
+                results = dhondt_service.get_scrutinies(
+                    district_id=districtId, scrutiny_date=scrutiny_date
+                )
+            errors = GetScrutinies().validate(results)
+            if errors:
+                raise ValidationError(errors)
+            return jsonify(results)
 
+        except ScrutinyNotFoundError:
+            detail = f"Scrutiny with {districtId=} " + (
+                f"and {scrutiny_date=} " if scrutiny_date else ""
+            )
+            abort(404, description="{}not found!".format(detail))
+
+    @blueprint.arguments(CreateScrutiny)
+    @blueprint.response(status_code=201, schema=Scrutiny)
     def post(self, payload, districtId):
-        pass
+        try:
+            with get_db_session() as session:
+                repo = DhondtRepository(session)
+                dhondt_service = DhondtService(repo)
+                results = dhondt_service.create_scrutiny(
+                    district_id=districtId, **payload
+                )
+            logger.debug(" Validating %s", results)
+            errors = Scrutiny().validate(results)
+            if errors:
+                raise ValidationError(errors)
+            return jsonify(results)
+
+        except DistrictsNotFoundError:
+            abort(
+                404,
+                description="District Id {} not found!".format(
+                    payload.get("districtId")
+                ),
+            )
 
 
 @blueprint.route("/dhondt/v1/districts/<districtId>/scrutinies/<scrutinyId>")
 class ScrutinyRoute(MethodView):
+    @blueprint.response(status_code=200, schema=Scrutiny)
     def get(self, districtId, scrutinyId):
-        pass
+        try:
+            with get_db_session() as session:
+                repo = DhondtRepository(session)
+                dhondt_service = DhondtService(repo)
+                results = dhondt_service.get_scrutinies(
+                    district_id=districtId, scrutiny_id=scrutinyId
+                )
+            logger.info("A validar %s", results)
+            errors = Scrutiny().validate(results)
+            if errors:
+                raise ValidationError(errors)
+            return jsonify(results)
+
+        except ScrutinyNotFoundError:
+            abort(404, description=f"Scrutiny with scrutiny id {scrutinyId} not found!")
 
 
 ########################

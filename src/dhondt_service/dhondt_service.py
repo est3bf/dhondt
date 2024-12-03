@@ -4,6 +4,7 @@ from dhondt.db.dhondt_repository import DhondtRepository
 from dhondt.dhondt_service.exceptions import (
     DistrictsNotFoundError,
     PoliticalPartyListsNotFoundError,
+    ScrutinyNotFoundError,
 )
 
 logger = logging.getLogger(__name__)
@@ -92,3 +93,17 @@ class DhondtService:
             electors=electors,
         )
         return result
+
+    def get_scrutinies(self, district_id, scrutiny_id=None, scrutiny_date=None):
+        scrutinies = self.repository.get_scrutinies(
+            district_id=district_id,
+            scrutiny_date=scrutiny_date,
+            scrutiny_id=scrutiny_id,
+        )
+        if scrutinies is None:
+            raise ScrutinyNotFoundError(
+                f"Scrutiny with {scrutiny_date=} and {scrutiny_id=} not found!"
+            )
+        if scrutiny_id:
+            return scrutinies[0]
+        return {"scrutinies": scrutinies}

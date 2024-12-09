@@ -57,23 +57,78 @@
 							<div class="form-group col-md-1">
 								<button type="submit" id="scrutiny-create-button" class="btn btn-block btn-success">Create</button>
 							</div>
-							
+							<div class="form-group col-md-1">
+								<button type="submit" id="scrutiny-list-button" class="btn btn-block btn-info">List</button>
+							</div>
+							<div class="form-group col-md-2">
+								<button type="submit" id="getSeats" class="btn btn-block btn-info">Historical Seats </button>
+							</div>						
 
 							<div class="form-group col-md-1">
 								<button type="submit" id="ppl-create-button" class="btn btn-success">Create</button>
 							</div>
-							
+							<div class="form-group col-md-3">
+								<button type="submit" id="ppl-list-button" class="btn  btn-info">List</button>
+							</div>
 
 							<div class="form-group col-md-2">
 							</div>
 						</div>
 						
+						<div id="dynamic-input-group1" class="container mt-5" style="display:none">
+							<div class="form-row align-items-center">
+								<div id="din-input1" class="form-group col-md-3">
+									<label >Voting Date </label>
+									<input id="input-voting-date" class="form-control input-auto-complete" type="text" placeholder="" value="" autocomplete="off">							
+								</div>
+								<div id="din-input2" class="form-group col-md-3">
+									<label >Scrutiny Date</label>
+									<input id="input-scrutiny-date" class="form-control input-auto-complete" type="text" placeholder="" value="" autocomplete="off">							
+								</div>
+								<div id="din-input3" class="form-group col-md-3">
+									<label >Scrutiny Name</label>
+									<input id="input-scrutiny-name" class="form-control input-auto-complete" type="text" placeholder="" value="" autocomplete="off">							
+								</div>
+								<div id="din-input4" class="form-group col-md-3">
+									<label >Total Seats Available</label>
+									<input id="input-seats" class="form-control input-auto-complete" type="text" placeholder="" value="" autocomplete="off">							
+								</div>
+								<div id="din-input5" class="form-group col-md-3">
+									<label >Politycal Party List Name </label>
+									<input id="input-ppl-name" class="form-control input-auto-complete" type="text" placeholder="" value="" autocomplete="off">							
+								</div>
+								<div id="din-input6" class="form-group col-md-3">
+									<label > Electors Quantity </label>
+									<input id="input-electors-quantity" class="form-control input-auto-complete" type="text" placeholder="" value="" autocomplete="off">							
+								</div>
+							</div>
+								
+							<div class="d-flex justify-content-center">
+								<div class="form-row align-items-center">
+									<button id="save-data-button" class="btn btn-lg btn-success"> Save </button>
+								</div>
+							</div>
+						</div>		
 					</form>											
 				</div>
 				<hr/>
 
+				<h4 class='text-center'>Seats Calculation</h4>
+				
+				<div class="d-flex justify-content-center">
+					<div class="d-flex justify-content-center col-md-3">
+						<button type="submit" id="calcSeats" class="btn btn-md btn-danger">Calculate Seats</button>
+					</div>
+				</div>
+				
+
+				<div id="dynamic-group-2" class="container mt-5" style="display:none">
+					<h4 id="dynamic-table-name" class='text-center'> </h4>
+					<div id="dynamic-table">
+					</div>					
+				</div>
 			</div>
-		</div>			
+		</div>					
 		
 		<!-- Bootstrap core JavaScript -->
 		<!-- Placed at the end of the document so the pages load faster -->
@@ -102,18 +157,64 @@
 				const scmbDist = document.getElementById('cmbDistrict');
 				const scmbScr = document.getElementById('cmbScrutiny');
 				const scmbPpl = document.getElementById('cmbPpl');
+				const bvoteUpdate = document.getElementById('voteUpdate');
+				const bscrutiny = document.getElementById('scrutiny-create-button');
+				const bpplcreate = document.getElementById('ppl-create-button');
 			
 				if (allEmpty([scmbDist.value])){
 					scmbScr.innerHTML = '<option value="">::Select::</option>';
 					scmbPpl.innerHTML = '<option value="">::Select::</option>';
 					scmbScr.disabled = true;
 					scmbPpl.disabled = true;
+					bvoteUpdate.disabled = true;
+					bscrutiny.disabled = true;
+					bpplcreate.disabled = true;
 					return;					
 				} 
 				scmbScr.disabled = false;
 				scmbPpl.disabled = false;
+				bscrutiny.disabled = false;
+				bpplcreate.disabled = false;				
+				if (allEmpty([scmbScr.value])){
+					bvoteUpdate.disabled = true;
+					return;
+				}
+				bvoteUpdate.disabled = false;
+				if (allEmpty([scmbPpl.value])){
+					bvoteUpdate.disabled = true;
+				}
 			}
 
+			function disable_group_input(group){
+				document.getElementById('dynamic-input-group1').style.display = "none";
+				if(group == 1 || group == 3){
+					document.getElementById("input-voting-date").value = "";
+					document.getElementById("input-scrutiny-date").value = "";
+					document.getElementById("input-scrutiny-name").value = "";
+					document.getElementById("input-seats").value = "";
+					document.getElementById('din-input1').style.display = "none";
+					document.getElementById('din-input2').style.display = "none";
+					document.getElementById('din-input3').style.display = "none";
+					document.getElementById('din-input4').style.display = "none";
+				} else if (group == 2 || group == 3) {
+					document.getElementById("input-ppl-name").value = "";
+					document.getElementById("input-electors-quantity").value = "";
+					document.getElementById('din-input5').style.display = "none";
+					document.getElementById('din-input6').style.display = "none";
+				}
+			}
+
+			function enable_group_input(group) {
+				if(group == 1){
+					document.getElementById('din-input1').style.display = "block";
+					document.getElementById('din-input2').style.display = "block";
+					document.getElementById('din-input3').style.display = "block";
+					document.getElementById('din-input4').style.display = "block";
+				} else {
+					document.getElementById('din-input5').style.display = "block";
+					document.getElementById('din-input6').style.display = "block";
+				}
+			}
 
 			function someEmpty(varVect)	{
 				return varVect.some(x => (x === null || x === "") )
@@ -122,7 +223,7 @@
 			function allEmpty(varVect) {
 				return varVect.every(x => (x === null || x === "") )
 			}
-			
+
 			function loadCmbDistricts(){
 				const select = document.getElementById('cmbDistrict');
 				select.innerHTML = '<option value="">::Select::</option>';
@@ -219,6 +320,133 @@
 					});			
 			}
 			
+			function createScrutiny(ev) {
+				disable_table();
+				disable_group_input(2);
+				enable_group_input(1);
+				document.getElementById('dynamic-input-group1').style.display="block";
+			}
+
+			function saveScrutiny(){
+				const cmbDistValue = document.getElementById('cmbDistrict').value;
+				const voting_date = $('#input-voting-date').val();
+				const scrutiny_date = $('#input-scrutiny-date').val();
+				const scrutiny_name = $('#input-scrutiny-name').val();
+				const input_seats = Number($('#input-seats').val());
+				if (someEmpty([cmbDistValue, voting_date, scrutiny_date, scrutiny_name, input_seats]) == true ){
+					alert("Input error!!!");
+					return;
+				}
+				const parameters = {
+					"seats": input_seats,
+					"name": scrutiny_name,
+					"votingDate": voting_date,
+					"scrutinyDate": scrutiny_date
+				};
+				let idDist = cmbDist.districts[cmbDistValue].id;
+				$.ajax({
+						url: '/dhondt/v1/districts/'+idDist+'/scrutinies',
+						method: 'POST',
+						data:  JSON.stringify(parameters),
+						async: false,
+						cache: false,
+						contentType: "application/json",			
+						success: function(res){
+							confirm("Scrutiny " + scrutiny_name + "created!");
+							disable_group_input(3);
+							loadScrutiny();
+						},
+						error: function(xhr, status, error) {
+							// Este bloque se ejecuta si hay un error en la solicitud
+							const msg_err = 'Error in /dhondt/v1/districts/'+idDist+'/scrutinies, status: ';
+							console.error(msg_err, status);
+							console.error('Error message:', error);
+							// Puedes mostrar un mensaje al usuario
+							// alert('Internal error processing data. Code: ' + status);
+						}    								
+				});	
+			}
+
+			function createPplist(ev) {
+				disable_table();
+				disable_group_input(1);
+				enable_group_input(2);
+				document.getElementById('dynamic-input-group1').style.display="block";
+			}
+			
+			function savePplist(){
+				const cmbDistValue = document.getElementById('cmbDistrict').value;
+				const ppl_name = $('#input-ppl-name').val();
+				const electors_qty = Number($('#input-electors-quantity').val());
+				if (someEmpty([cmbDistValue, ppl_name, electors_qty]) == true ){
+					alert("Input error!!!");
+					return;
+				}
+				let idDist = cmbDist.districts[cmbDistValue].id;
+				const parameters = {
+					"name": ppl_name,
+					"votingDate": electors_qty,
+				};
+				$.ajax({					
+						url: '/dhondt/v1/districts/'+idDist+'/political-party-lists/',
+						method: 'POST',
+						data:  JSON.stringify(parameters),
+						async: false,
+						cache: false,
+						contentType: "application/json",			
+						success: function(res){
+							confirm("Scrutiny " + scrutiny_name + "created!");
+							disable_group_input(3);
+							loadScrutiny();
+						},
+						error: function(xhr, status, error) {
+							// Este bloque se ejecuta si hay un error en la solicitud
+							const msg_err = 'Error in /dhondt/v1/districts/'+idDist+'/scrutinies, status: ';
+							console.error(msg_err, status);
+							console.error('Error message:', error);
+							// Puedes mostrar un mensaje al usuario
+							// alert('Internal error processing data. Code: ' + status);
+						}    								
+				});	
+			}
+
+			/*******************
+			* Events handlers 
+			*******************/
+			let last_emited = 0;
+	
+			$("#dhondt-form").submit(function(e){
+				console.log(last_emited);
+				const aux = last_emited;
+				last_emited = 0;
+				e.preventDefault();		
+				switch(aux){
+					case 1:
+						getsSeats(e);
+						break;
+					case 2:
+						calulateSeats(e);
+						break;
+					case 3:
+						updateVote(e);
+						break;
+					case 4:
+						createScrutiny(e);
+						break;
+					case 5:
+						listScrutinies(e);
+						break;
+					case 6:
+						createPplist(e);
+						break;
+					case 7:
+						listPplist(e);
+						break;
+					default:
+						break;
+				}
+			});
+			
 			document.getElementById('cmbDistrict').addEventListener('change', function() {
 				// Load the scrutiny select box with the current selection
 				loadScrutiny();
@@ -232,6 +460,57 @@
 			document.getElementById('cmbPpl').addEventListener('change', function() {
 				// enable buttons
 				enable_or_disable_buttons_and_selectors();
+			});
+
+			// Event for get all seats for a particular scrutiny
+			document.getElementById('getSeats').addEventListener("click", function() {	
+				last_emited = 1;
+				$("#dhondt-form").submit();
+			});
+
+			// Event for calculation seats for a particular scrutiny
+			document.getElementById('calcSeats').addEventListener("click", function() {		
+				last_emited = 2;		
+				$("#dhondt-form").submit();
+			});
+
+			// Event for update vote to a particular pplist
+			document.getElementById('voteUpdate').addEventListener("click", function() {
+				last_emited = 3;
+				$("#dhondt-form").submit();
+			});
+
+			// Event for calculation seats for a particular scrutiny
+			document.getElementById('scrutiny-create-button').addEventListener("click", function() {
+				last_emited = 4;
+				$("#dhondt-form").submit();
+			});
+
+			// Event for list scrutinies seats for a particular scrutiny
+			document.getElementById('scrutiny-list-button').addEventListener("click", function() {
+				last_emited = 5;
+				$("#dhondt-form").submit();
+			});
+
+			// Event for create a politcal parti list
+			document.getElementById('ppl-create-button').addEventListener("click", function() {
+				last_emited = 6;
+				$("#dhondt-form").submit();
+			});
+
+			// Event for list all politcal parti lists
+			document.getElementById('ppl-list-button').addEventListener("click", function() {
+				last_emited = 7;
+				$("#dhondt-form").submit();
+			});
+
+			// Event for save data of inputs
+			document.getElementById('save-data-button').addEventListener("click", function() {	
+				if (document.getElementById('dynamic-input-group3').style.display == "None") {
+					saveScrutiny();
+				} else {
+					savePplist();
+				}
 			});
 
 			window.addEventListener('load', function() {

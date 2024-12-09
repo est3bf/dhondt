@@ -14,5 +14,77 @@
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/tempusdominus-bootstrap-4.min.css') }}">
 	</head>
 	<body class="bg-white">
+		<div class="d-flex">
+			<div class="container bg-light mt-5 mb-5">
+				<div class="py-5 text-center">
+					<h2>D'Hondt Seats Calculation </h2>
+				</div>
+				<hr/>
+				<div class="col-md-12 order-md-1">
+					<form id="dhondt-form">
+						<div class="form-row align-items-end">
+							<div class="form-group col-md-2">
+								<label>District</label>
+								<select class="form-control" id="cmbDistrict" data-required="true" disabled> 
+									<option value="">::Select::</option>
+								</select>
+							</div>
+							<div class="form-group col-md-4">
+								<label >Scrutiny</label>
+								<select class="form-control" id="cmbScrutiny" data-required="true" disabled> 
+									<option value="">::Select::</option>
+								</select>
+							</div>
+							<div class="form-group col-md-4">
+								<label >Political Patiy List</label>
+								<select class="form-control" id="cmbPpl" data-required="true" disabled> 
+									<option value="">::Select::</option>
+								</select>
+							</div>
+							<div class="form-group col-md-1">
+								<label >Votes</label>
+								<input id="input-vote" class="form-control input-auto-complete" type="text" placeholder="" value="" autocomplete="off">
+							</div>
+							<div class="form-group col-md-1">
+								<button type="submit" id="voteUpdate" class="btn btn-primary">Update</button>
+							</div>
+						</div>
+
+						<div class="form-row align-items-end">
+							<div class="form-group col-md-2">
+							</div>
+
+							<div class="form-group col-md-1">
+								<button type="submit" id="scrutiny-create-button" class="btn btn-block btn-success">Create</button>
+							</div>
+							
+
+							<div class="form-group col-md-1">
+								<button type="submit" id="ppl-create-button" class="btn btn-success">Create</button>
+							</div>
+							
+
+							<div class="form-group col-md-2">
+							</div>
+						</div>
+						
+					</form>											
+				</div>
+				<hr/>
+
+			</div>
+		</div>			
+		
+		<!-- Bootstrap core JavaScript -->
+		<!-- Placed at the end of the document so the pages load faster -->
+		<script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/moment.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/tempusdominus-bootstrap-4.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/bootstrap-autocomplete.min.js') }}"></script>
+		<script>
+			console.enabled = true;
+		</script>
 	</body>
 </html>

@@ -84,7 +84,161 @@
 		<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 		<script src="{{ url_for('static', filename='js/bootstrap-autocomplete.min.js') }}"></script>
 		<script>
+			let cmbScr;
+			let cmbDist;
+			let cmbPpl;
+
 			console.enabled = true;
+
+			function disable_selectors(){
+				document.getElementById('cmbDistrict').disabled = true;
+				document.getElementById('cmbScrutiny').disabled = true;
+				document.getElementById('cmbPpl').disabled = true;
+			}		
+
+
+			// Disable or enable buttons according to selections
+			function enable_or_disable_buttons_and_selectors(){
+				const scmbDist = document.getElementById('cmbDistrict');
+				const scmbScr = document.getElementById('cmbScrutiny');
+				const scmbPpl = document.getElementById('cmbPpl');
+			
+				if (allEmpty([scmbDist.value])){
+					scmbScr.innerHTML = '<option value="">::Select::</option>';
+					scmbPpl.innerHTML = '<option value="">::Select::</option>';
+					scmbScr.disabled = true;
+					scmbPpl.disabled = true;
+					return;					
+				} 
+				scmbScr.disabled = false;
+				scmbPpl.disabled = false;
+			}
+
+
+			function someEmpty(varVect)	{
+				return varVect.some(x => (x === null || x === "") )
+			}
+
+			function allEmpty(varVect) {
+				return varVect.every(x => (x === null || x === "") )
+			}
+			
+			function loadCmbDistricts(){
+				const select = document.getElementById('cmbDistrict');
+				select.innerHTML = '<option value="">::Select::</option>';
+				select.disabled = false;
+				$(cmbDist.districts).each(function(i,obj ) {
+					const optionElement = document.createElement('option');
+					optionElement.value = i;
+					optionElement.textContent = obj.name;
+					select.appendChild(optionElement);
+					select.appendChild(optionElement);					
+				});
+			}
+
+			function loadDistricts(){
+				$.ajax({
+						url: '/dhondt/v1/districts',
+						method: 'GET',
+						async: false,
+						cache: false,
+						contentType: "application/json",
+						success: function(res){
+							cmbDist = res;
+							loadCmbDistricts();
+						}								
+					});			
+			}
+			function loadCmbScrutiny(){
+				const select = document.getElementById('cmbScrutiny');
+				// Limpia las opciones actuales (si las hay)
+				select.innerHTML = '<option value="">::Select ::</option>';
+				select.disabled = false;
+				$(cmbScr.scrutinies).each(function(i,obj ) {
+					const optionElement = document.createElement('option');
+					optionElement.value = i;
+					optionElement.textContent = obj.name;
+					select.appendChild(optionElement);
+					select.appendChild(optionElement);					
+				});
+			}
+
+			function loadScrutiny(){
+				const select = document.getElementById('cmbDistrict');
+				console.log( 'cmbDistrict = ' + select.value);
+				if (allEmpty([select.value])) {
+					console.log( 'Without selection!');
+					return
+				}
+				let idDist = cmbDist.districts[select.value].id;
+				$.ajax({
+						url: '/dhondt/v1/districts/'+idDist+'/scrutinies',
+						method: 'GET',
+						async: false,
+						cache: false,
+						contentType: "application/json",
+						success: function(res){
+							cmbScr = res;
+							loadCmbScrutiny();
+						}								
+					});			
+			}
+
+			function loadCmbPoliticalPartyList(){
+				const select = document.getElementById('cmbPpl');
+				// Limpia las opciones actuales (si las hay)
+				select.innerHTML = '<option value="">::Select ::</option>';
+				select.disabled = false;
+				$(cmbPpl.politicalPartyLists).each(function(i,obj ) {
+					const optionElement = document.createElement('option');
+					optionElement.value = i;
+					optionElement.textContent = obj.name;
+					select.appendChild(optionElement);
+					select.appendChild(optionElement);					
+				});
+			}
+
+			function loadPoliticalPartyList(){
+				const select = document.getElementById('cmbDistrict');
+				console.log( 'cmbDistrict = ' + select.value);
+				if (allEmpty([select.value])) {
+					console.log( 'Without selection!');
+					return
+				}
+				let idDist = cmbDist.districts[select.value].id;
+				$.ajax({
+						url: '/dhondt/v1/districts/'+idDist+'/political-party-lists',
+						method: 'GET',
+						async: false,
+						cache: false,
+						contentType: "application/json",
+						success: function(res){
+							cmbPpl = res;
+							loadCmbPoliticalPartyList();
+						}								
+					});			
+			}
+			
+			document.getElementById('cmbDistrict').addEventListener('change', function() {
+				// Load the scrutiny select box with the current selection
+				loadScrutiny();
+				loadPoliticalPartyList();
+			});
+			// Events for allow use buttons
+			document.getElementById('cmbScrutiny').addEventListener('change', function() {
+				// enable buttons
+				enable_or_disable_buttons_and_selectors();
+			});
+			document.getElementById('cmbPpl').addEventListener('change', function() {
+				// enable buttons
+				enable_or_disable_buttons_and_selectors();
+			});
+
+			window.addEventListener('load', function() {
+				console.log('Page loaded!!');
+				disable_selectors();
+				loadDistricts();
+			});
 		</script>
 	</body>
 </html>

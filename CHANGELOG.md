@@ -9,6 +9,19 @@ and the project versioning use [Semantic Versioning](https://semver.org/spec/v2.
 
 ## [0.0.0] - 2024-12-02
 
-### Changed
+### Added
 
 * First version uploaded. Contains only project structure
+
+## [0.1.0] - 2024-12-03
+
+### Added
+
+* Implement API completely
+
+
+## [0.2.0] - 2024-12-09
+
+### Added
+
+* Implement web completely

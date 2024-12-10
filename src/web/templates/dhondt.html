@@ -128,7 +128,7 @@
 					</div>					
 				</div>
 			</div>
-		</div>					
+		</div>			
 		
 		<!-- Bootstrap core JavaScript -->
 		<!-- Placed at the end of the document so the pages load faster -->
@@ -145,21 +145,18 @@
 
 			console.enabled = true;
 
-			function disable_selectors(){
-				document.getElementById('cmbDistrict').disabled = true;
-				document.getElementById('cmbScrutiny').disabled = true;
-				document.getElementById('cmbPpl').disabled = true;
-			}		
-
-
 			// Disable or enable buttons according to selections
 			function enable_or_disable_buttons_and_selectors(){
 				const scmbDist = document.getElementById('cmbDistrict');
 				const scmbScr = document.getElementById('cmbScrutiny');
 				const scmbPpl = document.getElementById('cmbPpl');
 				const bvoteUpdate = document.getElementById('voteUpdate');
+				const bgetSeats = document.getElementById('getSeats');
+				const bcalSeats = document.getElementById('calcSeats');
 				const bscrutiny = document.getElementById('scrutiny-create-button');
+				const blistscrutiny = document.getElementById('scrutiny-list-button');
 				const bpplcreate = document.getElementById('ppl-create-button');
+				const bppllist = document.getElementById('ppl-list-button');
 			
 				if (allEmpty([scmbDist.value])){
 					scmbScr.innerHTML = '<option value="">::Select::</option>';
@@ -167,24 +164,46 @@
 					scmbScr.disabled = true;
 					scmbPpl.disabled = true;
 					bvoteUpdate.disabled = true;
+					bgetSeats.disabled = true;
+					bcalSeats.disabled = true;
 					bscrutiny.disabled = true;
 					bpplcreate.disabled = true;
+					blistscrutiny.disabled = true;
+					bppllist.disabled = true;
 					return;					
 				} 
 				scmbScr.disabled = false;
 				scmbPpl.disabled = false;
 				bscrutiny.disabled = false;
 				bpplcreate.disabled = false;				
+				bppllist.disabled = false;
 				if (allEmpty([scmbScr.value])){
 					bvoteUpdate.disabled = true;
+					blistscrutiny.disabled = true;
+					bgetSeats.disabled = true;
+					bcalSeats.disabled = true;
 					return;
 				}
+				bgetSeats.disabled = false;
+				bcalSeats.disabled = false;
 				bvoteUpdate.disabled = false;
+				blistscrutiny.disabled = false;
 				if (allEmpty([scmbPpl.value])){
 					bvoteUpdate.disabled = true;
 				}
 			}
 
+			function disable_selectors(){
+				document.getElementById('cmbDistrict').disabled = true;
+				document.getElementById('cmbScrutiny').disabled = true;
+				document.getElementById('cmbPpl').disabled = true;
+			}		
+
+			function disable_table(){
+				$("#dynamic-table").html("");
+				document.getElementById('dynamic-group-2').style.display="none";
+			}
+				
 			function disable_group_input(group){
 				document.getElementById('dynamic-input-group1').style.display = "none";
 				if(group == 1 || group == 3){
@@ -216,12 +235,157 @@
 				}
 			}
 
+
 			function someEmpty(varVect)	{
 				return varVect.some(x => (x === null || x === "") )
 			}
 
 			function allEmpty(varVect) {
 				return varVect.every(x => (x === null || x === "") )
+			}
+						
+			function showSeatsResultTable(res) {			
+				let elements = [
+					'<i class="fa fa-user-clock"></i> Date',
+					'<i class="fa fa-university"></i> Politic Party List' ,
+					'<i class="fa fa-users"></i> Seats Obtained' ,
+					];
+
+				let data=[];
+				console.log("Seats received form server: "+res);	
+				let calculationDate = res.calculationDate;				
+				res.seatsResults.forEach(function(result) {
+					let row_data=[];
+					row_data.push(calculationDate);
+					// P.p. list name
+					row_data.push(result.pplistName);
+					// seats obtained
+					row_data.push(result.seats);
+					// color according result
+					let row_class = "";
+					if (result.seats == 0) {
+						row_class = "table-warning";
+					} else {
+						row_class = "table-success";
+					} 
+					data.push({"data":row_data, "class":row_class});
+				});
+				//Creates the table
+				showDynamicTable("Seats Calculated", elements, data, "table-hover")
+			}
+
+			function showSeatsTable(res) {			
+				let elements = [
+					'<i class="fa fa-user-clock"></i> Date',
+					'<i class="fa fa-university"></i> Politic Party List' ,
+					'<i class="fa fa-users"></i> Seats Obtained' ,
+					];
+
+				let data=[];
+				console.log("Seats received form server: "+res.scrutinyResults);
+				res.scrutinyResults.forEach(function(calc) {
+					calc.seatsResults.forEach(function(result) {
+						let row_data=[];
+						row_data.push(calc.calculationDate);
+						// P.p. list name
+						row_data.push(result.pplistName);
+						// seats obtained
+						row_data.push(result.seats);
+						// color according result
+						let row_class = "";
+						if (result.seats == 0) {
+							row_class = "table-warning";
+						} else {
+							row_class = "table-success";
+						} 
+						data.push({"data":row_data, "class":row_class});
+					});
+				});
+				//Creates the table
+				showDynamicTable("Seats Calculated", elements, data, "table-hover")
+			}
+
+			function showScrutinyLisTable(res){
+				let elements = [
+					'<i class="fa fa-user-clock"></i> Voting Date',
+					'<i class="fa fa-user-clock"></i> Scrutiny Date',
+					'<i class="fa fa-inbox"></i> Name' ,
+					'<i class="fa fa-users"></i> Total Seats Available' ,
+					];
+
+				let data=[];
+				console.log("Scrutinies received form server: "+res.scrutinies);
+				res.scrutinies.forEach(function(scrutiny) {
+					let row_data=[];
+					// Date of voting
+					row_data.push(scrutiny.votingDate);
+					// Date of scrutiny ends
+					row_data.push(scrutiny.scrutinyDate);					
+					// Name of scrutiny
+					row_data.push(scrutiny.name);
+					// Seat available					
+					row_data.push(scrutiny.seats);
+					data.push({"data":row_data, "class":""});
+				});
+				//Creates the table
+				showDynamicTable("List of Scrutiny", elements, data, "table-striped")
+			}
+
+			function showPplLisTable(res){
+				let elements = [
+					'<i class="fa fa-university"></i> Political Party List Name',
+					'<i class="fa fa-envelope-open"></i> votes',
+					'<i class="fa fa-users"></i> Electors available' ,
+					];
+
+				let data=[];
+				console.log("PPL received form server: "+ res.politicalPartyLists);
+				res.politicalPartyLists.forEach(function(ppl) {
+					let row_data=[];
+					// PPL Name
+					row_data.push(ppl.name);
+					// Votes Received
+					row_data.push(ppl.votes);					
+					// Electors available
+					row_data.push(ppl.electors);
+					data.push({"data":row_data, "class":""});
+				});
+				//Creates the table
+				showDynamicTable("List of Scrutiny", elements, data, "table-striped")
+			}
+			
+
+			function showDynamicTable(name, elements, data, type){
+				$("#dynamic-table").html("");
+				document.getElementById('dynamic-group-2').style.display="block";
+				disable_group_input(3);
+								
+				// Name
+				document.getElementById('dynamic-table-name').value = name;
+				// create table
+				let t = document.createElement("table");
+				let th = document.createElement("thead");
+				let tr = document.createElement("tr");
+
+				elements.forEach(function(element) {
+					let e = document.createElement("th");
+					$(e).attr("scope", "col").html(element).appendTo($(tr));
+				});
+				$(tr).appendTo($(th));
+				$(th).appendTo($(t));
+
+				let tb = document.createElement("tbody");
+				$(tb).attr("id", "result-table").appendTo($(t));
+				$(t).addClass("table").addClass(type).appendTo($("#dynamic-table"));
+
+				data.forEach(function(row) {
+					let tr = document.createElement("tr");
+					row.data.forEach(function(info) {
+						let td = document.createElement("td");
+						$(td).html(info).appendTo($(tr));
+					});					
+					$(tr).addClass(row.class).appendTo($(tb));
+				});
 			}
 
 			function loadCmbDistricts(){
@@ -236,7 +400,7 @@
 					select.appendChild(optionElement);					
 				});
 			}
-
+			
 			function loadDistricts(){
 				$.ajax({
 						url: '/dhondt/v1/districts',
@@ -250,6 +414,7 @@
 						}								
 					});			
 			}
+
 			function loadCmbScrutiny(){
 				const select = document.getElementById('cmbScrutiny');
 				// Limpia las opciones actuales (si las hay)
@@ -320,6 +485,157 @@
 					});			
 			}
 			
+			function calulateSeats(ev){
+				const cmbDistValue = document.getElementById('cmbDistrict').value;
+				const cmbScrutinyValue = document.getElementById('cmbScrutiny').value;
+				ev.preventDefault();
+				if (someEmpty([cmbDistValue, cmbScrutinyValue]) == true ){
+					alert("Nor district and scrutiny is given!");
+					return;
+				}
+				let idDist = cmbDist.districts[cmbDistValue].id;
+				let idScr = cmbScr.scrutinies[cmbScrutinyValue].id;
+				$.ajax({
+						url: '/dhondt/v1/districts/'+idDist+'/scrutinies/'+idScr+'/seats-status',
+						method: 'POST',
+						async: false,
+						cache: false,
+						contentType: "application/json",		
+						success: function(res){
+							showSeatsResultTable(res);
+						}								
+					});	
+			}
+
+			function getsSeats(ev){
+				disable_table();
+				const cmbDistValue = document.getElementById('cmbDistrict').value;
+				const cmbScrutinyValue = document.getElementById('cmbScrutiny').value;				
+				ev.preventDefault();					
+				if (someEmpty([cmbDistValue, cmbScrutinyValue]) == true ){
+					alert("Nor district and scrutiny list is given!");
+					return;
+				}
+				let idDist = cmbDist.districts[cmbDistValue].id;
+				let idScr = cmbScr.scrutinies[cmbScrutinyValue].id;
+				$.ajax({
+						url: '/dhondt/v1/districts/'+idDist+'/scrutinies/'+idScr+'/seats-status',
+						method: 'GET',
+						async: false,
+						cache: false,
+						contentType: "application/json",	
+						success: function(res){
+							showSeatsTable(res);
+						},
+						error: function(xhr, status, error) {
+							// Este bloque se ejecuta si hay un error en la solicitud
+							const msg_err = 'Error in /dhondt/v1/districts/'+idDist+'/scrutinies, status: ';
+							console.error(msg_err, status);
+							console.error('Error message:', error);
+							// Puedes mostrar un mensaje al usuario
+							alert('Error getting historical scrutiny results for "' +
+								cmbScr.scrutinies[cmbScrutinyValue].name +
+								'".\nError: ' + status);
+						}    															
+				});	
+			}
+
+			function listScrutinies(ev) {
+				disable_table();
+				const cmbDistValue = document.getElementById('cmbDistrict').value;	
+				ev.preventDefault();					
+				if (someEmpty([cmbDistValue]) == true ){
+					alert("No district is given!");
+					return;
+				}
+				let idDist = cmbDist.districts[cmbDistValue].id;
+				$.ajax({
+						url: '/dhondt/v1/districts/'+idDist+'/scrutinies',
+						method: 'GET',
+						async: false,
+						cache: false,
+						contentType: "application/json",			
+						success: function(res){
+							showScrutinyLisTable(res);
+						},
+						error: function(xhr, status, error) {
+							// Este bloque se ejecuta si hay un error en la solicitud
+							const msg_err = 'Error in /dhondt/v1/districts/'+idDist+'/scrutinies, status: ';
+							console.error(msg_err, status);
+							console.error('Error message:', error);
+							// Puedes mostrar un mensaje al usuario
+							alert('Error getting list of scrutinies.\nError: ' + status);
+						}    															
+				});	
+			}
+
+			function listPplist(ev) {
+				disable_table();
+				const cmbDistValue = document.getElementById('cmbDistrict').value;	
+				ev.preventDefault();					
+				if (someEmpty([cmbDistValue]) == true ){
+					alert("No district is given!");
+					return;
+				}
+				let idDist = cmbDist.districts[cmbDistValue].id;
+				$.ajax({
+						url: '/dhondt/v1/districts/'+idDist+'/political-party-lists',
+						method: 'GET',
+						async: false,
+						cache: false,
+						contentType: "application/json",			
+						success: function(res){
+							showPplLisTable(res);
+						},
+						error: function(xhr, status, error) {
+							// Este bloque se ejecuta si hay un error en la solicitud
+							const msg_err = 'Error in /dhondt/v1/districts/'+idDist+'/political-party-lists, status: ';
+							console.error(msg_err, status);
+							console.error('Error message:', error);
+							// Puedes mostrar un mensaje al usuario
+							alert('Error getting list of scrutinies.\nError: ' + status);
+						}    															
+				});	
+			}
+
+			function updateVote(ev){
+				const cmbDistValue = document.getElementById('cmbDistrict').value;
+				const cmbPplValue = document.getElementById('cmbPpl').value;
+				const raw_votes = $('#input-vote').val();
+				ev.preventDefault();
+				if (someEmpty([cmbDistValue, cmbPplValue, raw_votes]) == true ){
+					alert("Nor district and political party list is given!");
+					return;
+				}
+				let idDist = cmbDist.districts[cmbDistValue].id;
+				let idPpl = cmbPpl.politicalPartyLists[cmbPplValue].id;
+				const votes = Number(raw_votes);
+				const parameters = {
+					"votes": votes,
+				};
+				$.ajax({
+						url: '/dhondt/v1/districts/'+idDist+'/political-party-lists/'+idPpl+'/vote',
+						method: 'PUT',
+						data: JSON.stringify(parameters),
+						async: false,
+						cache: false,
+						contentType: "application/json",
+						success: function(res){
+							confirm("Political Patry List updated "+ res.politicalPartyLists.name
+							+"to "+ res.politicalPartyLists.votes +" votes!");							
+						},
+						error: function(xhr, status, error) {
+							// Este bloque se ejecuta si hay un error en la solicitud
+							const msg_err = 'Error in /dhondt/v1/districts/'+idDist+'/political-party-lists/'+
+											idPpl+'/vote message. Error code:';
+							console.error(msg_err, status);
+							console.error('Error message:', error);
+							// Puedes mostrar un mensaje al usuario
+							// alert('Internal error processing data. Code: ' + status);
+						}    
+					});	
+			}
+
 			function createScrutiny(ev) {
 				disable_table();
 				disable_group_input(2);
@@ -446,11 +762,12 @@
 						break;
 				}
 			});
-			
+
 			document.getElementById('cmbDistrict').addEventListener('change', function() {
 				// Load the scrutiny select box with the current selection
 				loadScrutiny();
 				loadPoliticalPartyList();
+				enable_or_disable_buttons_and_selectors();
 			});
 			// Events for allow use buttons
 			document.getElementById('cmbScrutiny').addEventListener('change', function() {
@@ -512,10 +829,15 @@
 					savePplist();
 				}
 			});
+			
 
 			window.addEventListener('load', function() {
 				console.log('Page loaded!!');
 				disable_selectors();
+				disable_group_input();
+				disable_selectors();
+				enable_or_disable_buttons_and_selectors();
+				disable_table();
 				loadDistricts();
 			});
 		</script>

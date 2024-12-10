@@ -27,7 +27,7 @@ The project use [SQLAlchemy](https://www.sqlalchemy.org/) as Python SQL Toolkit 
 
 The project provides the OpenAPI specification file (src/web/dhondt.yaml) where the API is described.
 
-To see the specification click in the following link [API Specification](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/est3bf/dhondt/refs/heads/master/src/web/dhondt.yaml?token=GHSAT0AAAAAAC3SFHDDVOPFO6HP256FPQNKZ2XWQ6A) 
+To see the specification click in the following link [API Specification](https://petstore.swagger.io/?url=https://raw.githubusercontent.com/est3bf/dhondt/refs/heads/master/src/web/dhondt.yaml) 
 
 
 ## Database Schema Definition

@@ -50,7 +50,7 @@ class DB:
         cls.user = user
         passw = passw
         cls.passw = urlquote(passw)
-        logger.info(
+        logger.debug(
             "Init DB. Server: %s, database : %s, usuario: %s",
             cls.url,
             cls.database,
@@ -68,7 +68,7 @@ class DB:
             )
 
             if not database_exists(cls.engine.url):
-                logger.info("No hay DATABASE, LA CREA")
+                logger.debug("No DATABASE, make it!")
                 create_database(cls.engine.url)
 
             cls.session_factory = sessionmaker(
@@ -76,7 +76,7 @@ class DB:
                 expire_on_commit=False,
             )
             cls.Base.metadata.create_all(cls.engine)
-            logger.info("Supuestamente creo todo!!!!!")
+            logger.debug("Database created!")
 
         except Exception as e:
             logger.error("DB init error!!: %s", e)

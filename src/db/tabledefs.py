@@ -77,7 +77,7 @@ class PoliticalPartyListTable(DB.Base):
     """int: foreign key to the district table"""
     name = Column(String, nullable=False, unique=True)
     """str: name of the party list (passed as argument)"""
-    votes = Column(Integer, nullable=False, default=0)
+    votes = Column(Integer, default=0)
     """int: quantity of votes received """
     electors = Column(Integer, nullable=False)
     """int: number of electors in the list """

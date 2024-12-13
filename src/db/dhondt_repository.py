@@ -21,7 +21,9 @@ DB_DATABASE = os.getenv("DB_NAME", "dhondt")
 DB_USER = os.getenv("DB_USER", "postgres")
 DB_PASSW = os.getenv("DB_PASS", "postgres")
 
-DB.init(DB_URL, DB_DATABASE, DB_USER, DB_PASSW)
+
+def init_repository(use_memory_db):
+    DB.init(DB_URL, DB_DATABASE, DB_USER, DB_PASSW, memory=use_memory_db)
 
 
 class DhondtRepository:

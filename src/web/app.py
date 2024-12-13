@@ -8,20 +8,13 @@ from flask import Flask
 from apispec import APISpec
 from flask_smorest import Api
 
+from dhondt.db.dhondt_repository import init_repository
 from dhondt.web.api.config import BaseConfig
 import dhondt.web.api.api as api
 import dhondt.web.views as views
 
 
 SPEC_NAMEFILE = "dhondt.yaml"
-
-
-app = Flask(__name__)
-
-app.config.from_object(BaseConfig)
-
-dhondt_api = Api(app)
-
 
 log_level = os.getenv("LOG_LEVEL", "").upper().strip()
 if "DEBUG" == log_level:
@@ -39,19 +32,37 @@ logging.basicConfig(
 # Logger de la aplicación
 logger = logging.getLogger(__name__)
 
-# register views
-for view_blueprint in views.blueprints:
-    app.register_blueprint(view_blueprint)
 
-# register api
-dhondt_api.register_blueprint(api.blueprint)
+def create_app(test_config=None):
+    app = Flask(__name__)
 
-# load openapi specification
-api_spec = yaml.safe_load((Path(__file__).parent / SPEC_NAMEFILE).read_text())
-spec = APISpec(
-    title=api_spec["info"]["title"],
-    version=api_spec["info"]["version"],
-    openapi_version=api_spec["openapi"],
-)
-spec.to_dict = lambda: api_spec
-dhondt_api.spec = spec
+    if test_config is None:
+        # load the instance config, if it exists, when not testing
+        app.config.from_object(BaseConfig)
+    else:
+        # load the test config if passed in
+        app.config.from_mapping(test_config)
+
+    dhondt_api = Api(app)
+
+    # register views
+    for view_blueprint in views.blueprints:
+        app.register_blueprint(view_blueprint)
+
+    # register api
+    dhondt_api.register_blueprint(api.blueprint)
+
+    # load openapi specification
+    api_spec = yaml.safe_load((Path(__file__).parent / SPEC_NAMEFILE).read_text())
+    spec = APISpec(
+        title=api_spec["info"]["title"],
+        version=api_spec["info"]["version"],
+        openapi_version=api_spec["openapi"],
+    )
+    spec.to_dict = lambda: api_spec
+    dhondt_api.spec = spec
+    return app
+
+
+init_repository(os.getenv("__USE_MEMORY_DB"))
+create_app()

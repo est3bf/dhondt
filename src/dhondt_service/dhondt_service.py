@@ -1,6 +1,6 @@
 import logging
 
-from dhondt.db.dhondt_repository import DhondtRepository
+from dhondt.db.dhondt_repository import DhondtRepository, init_repository
 from dhondt.dhondt_service.exceptions import (
     DistrictsNotFoundError,
     PoliticalPartyListsNotFoundError,
@@ -9,6 +9,10 @@ from dhondt.dhondt_service.exceptions import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def init_service():
+    init_repository()
 
 
 def dhondt_calculation(political_parties, seats):

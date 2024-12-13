@@ -63,6 +63,8 @@ setup(
         "alembic",
         "sqlalchemy",
         "sqlalchemy_utils",
+        "hypothesis",
+        "schemathesis",
         "pyyaml",
     ],
 )

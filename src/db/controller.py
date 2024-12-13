@@ -3,9 +3,10 @@ import logging
 from contextlib import contextmanager
 from urllib.parse import quote_plus as urlquote
 
+from dhondt.utils import SingletonMeta
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 from sqlalchemy_utils import database_exists, create_database
 
 
@@ -26,7 +27,7 @@ class DBNoOpenSession(Exception):
     pass
 
 
-class DB:
+class DB(SingletonMeta):
     """
     DB class utilities
 
@@ -59,7 +60,10 @@ class DB:
         try:
             cls.engine = create_engine(
                 "postgresql://{user}:{passw}@{url}/{database}".format(
-                    user=cls.user, passw=cls.passw, url=cls.url, database=cls.database
+                    user=cls.user,
+                    passw=cls.passw,
+                    url=cls.url,
+                    database=cls.database,
                 ),
                 connect_args={
                     "connect_timeout": DB_CONNECTION_TIMEOUT,

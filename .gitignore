@@ -3,5 +3,8 @@
 
 .dbeaver/
 .vscode
-builds/
+build/
 dhondt_method.egg-info/
+db_data/
+.pytest_cache
+.hypothesis

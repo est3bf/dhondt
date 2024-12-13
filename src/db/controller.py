@@ -45,7 +45,11 @@ class DB(SingletonMeta):
     __session = None
 
     @classmethod
-    def init(cls, url, database, user=None, passw=None, debug=False):
+    def init(cls, url, database, user=None, passw=None, debug=False, memory=False):
+        if memory:
+            cls.init_memory_db()
+            return
+
         cls.url = url
         cls.database = database
         cls.user = user
@@ -103,6 +107,25 @@ class DB(SingletonMeta):
         # ONLY TO BE CALLED AT EXIT
         if cls.engine:
             cls.engine.dispose()
+
+    ###############
+    # Memory database methods (unit testing)
+    @classmethod
+    def init_memory_db(cls):
+        """
+        Creates an in-memory database for unit testing purpose
+        """
+        if not cls.engine:
+            cls.engine = create_engine("sqlite:///:memory:")
+            cls.session_factory = sessionmaker(
+                bind=cls.engine,
+                expire_on_commit=False,
+            )
+            cls.Base.metadata.create_all(cls.engine)
+
+    @classmethod
+    def drop_db_memory(cls):
+        cls.Base.metadata.drop_all(cls.engine)
 
 
 @contextmanager

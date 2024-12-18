@@ -1,0 +1,2 @@
+class PoliticalPartyListsAlreadyExist(Exception):
+    pass

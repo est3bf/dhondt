@@ -1,3 +1,6 @@
+from dhondt.db.exceptions import PoliticalPartyListsAlreadyExist
+
+
 class DistrictsNotFoundError(Exception):
     pass
 

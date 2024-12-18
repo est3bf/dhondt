@@ -29,8 +29,8 @@ class ScrutinyTable(DB.Base):
     def dict(self):
         return {
             "id": self.id,
-            "votingDate": self.voting_date.isoformat(),
-            "scrutinyDate": self.scrutiny_date.isoformat(),
+            "votingDate": self.voting_date,
+            "scrutinyDate": self.scrutiny_date,
             "districtId": self.district_id,
             "seats": self.seats,
             "name": self.name,
@@ -167,6 +167,6 @@ class DhondtResultTable(DB.Base):
             "districtId": self.scrutiny.district_id,
             "scrutinyId": self.scrutiny_id,
             "scrutinyName": self.scrutiny.name,
-            "calculationDate": self.result_date.isoformat(),
+            "calculationDate": self.result_date,
             "seatsResults": [x.dict() for x in self.seatspoliticalparties],
         }

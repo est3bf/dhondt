@@ -1,6 +1,10 @@
 import logging
 
-from dhondt.db.dhondt_repository import DhondtRepository, init_repository
+from dhondt.db.dhondt_repository import (
+    DhondtRepository,
+    init_repository,
+)
+
 from dhondt.dhondt_service.exceptions import (
     DistrictsNotFoundError,
     PoliticalPartyListsNotFoundError,
@@ -78,9 +82,7 @@ class DhondtService:
             electors=electors,
         )
         if not result:
-            raise PoliticalPartyListsNotFoundError(
-                f"Political Party Lists with {districtId=} not found!"
-            )
+            raise DistrictsNotFoundError(f"Districts with {districtId=} not found!")
         return result
 
     def update_political_party_list(self, pplist_id, district_id, name, electors):
@@ -112,6 +114,19 @@ class DhondtService:
         if scrutiny_id:
             return scrutinies[0]
         return {"scrutinies": scrutinies}
+
+    def create_scrutiny(self, district_id, votingDate, scrutinyDate, name, seats):
+        scrutinies = self.repository.create_scrutiny(
+            district_id=district_id,
+            voting_date=votingDate,
+            scrutiny_date=scrutinyDate,
+            name=name,
+            seats=seats,
+        )
+        if scrutinies is None:
+            raise DistrictsNotFoundError(f"Districts with {district_id=} not found!")
+
+        return scrutinies
 
     def update_vote(self, district_id, pplist_id, votes):
         political_party_lists = self.repository.get_political_party_lists(
@@ -145,6 +160,7 @@ class DhondtService:
         if not scrutiny:
             raise ScrutinyNotFoundError(f"Scrutiny with {scrutiny_id=} not found!")
 
+        logger.debug("dhondt_calculation scrutiny received %s", scrutiny)
         seats = scrutiny[0]["seats"]
 
         political_party_lists = self.repository.get_political_party_lists(
@@ -155,6 +171,10 @@ class DhondtService:
                 f"Political Party Lists with {district_id=} not found!"
             )
 
+        logger.debug(
+            "dhondt_calculation political_party_lists received %s",
+            political_party_lists,
+        )
         result = dhondt_calculation(
             political_parties=political_party_lists, seats=seats
         )

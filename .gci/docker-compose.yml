@@ -1,9 +1,7 @@
-version: '3.7'
-
 x-common: &common
     deploy:
         restart_policy:
-            condition: any
+            condition: on-failure
             delay: 5s
             window: 15s
     environment:
@@ -37,8 +35,6 @@ services:
             - postgres
         network_mode: host
         
-
-
 
 volumes: 
     data_postgres: 

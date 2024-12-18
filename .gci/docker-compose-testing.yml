@@ -1,0 +1,11 @@
+services:    
+    testing:
+        build:
+            context: ..
+            dockerfile: .gci/Dockerfile
+            target: testing
+        depends_on:
+            - postgres
+            - dhondt
+
+        network_mode: host

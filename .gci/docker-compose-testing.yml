@@ -1,11 +1,26 @@
 services:    
-    testing:
+    ci_testing:
         build:
             context: ..
             dockerfile: .gci/Dockerfile
-            target: testing
+            target: ci_testing
         depends_on:
             - postgres
             - dhondt
+        profiles:
+            - ci_test
+
+        network_mode: host
+
+    unit_testing:
+        build:
+            context: ..
+            dockerfile: .gci/Dockerfile
+            target: unit_testing
+        depends_on:
+            - postgres
+            - dhondt
+        profiles:
+            - unit_test
 
         network_mode: host

@@ -22,5 +22,10 @@ CMD FLASK_APP="dhondt.web.app" python3 -m flask run --host=0.0.0.0
 FROM production as debug
 CMD FLASK_APP="dhondt.web.app" python3 -m flask run --host=0.0.0.0 --debug
 
-FROM production as testing
+FROM production as unit_testing
+WORKDIR /usr/src/app
+ADD tests /usr/src/app
+CMD pytest -vv
+
+FROM production as ci_testing
 CMD  YAML=$(pip show dhondt-method | grep Location | cut -d" " -f2); schemathesis run $YAML/dhondt/web/dhondt.yaml --base-url=http://localhost:5000/dhondt/v1  --hypothesis-database=none --output-truncate=false --validate-schema=true --checks=all

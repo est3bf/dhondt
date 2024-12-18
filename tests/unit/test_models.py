@@ -15,6 +15,9 @@ from dhondt.db.tabledefs import (
     DhondtResultTable,
 )
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 value_strategy_int_db = st.integers(min_value=pow(-2, 63), max_value=(pow(2, 63) - 1))
 value_strategy_positive_db = st.integers(min_value=0, max_value=(pow(2, 63) - 1))
@@ -97,7 +100,7 @@ class TestModels:
     def _integrity_check(self, db_session, table, value):
         for var in value.keys():
             col = table.__table__.columns[var]
-            if col.nullable == True or not col.default:
+            if col.nullable == False:
                 # remove column to test nulleable condition
                 err = deepcopy(value)
                 err.pop(var)
@@ -161,8 +164,8 @@ class TestModels:
     def test_scrutinytable_ok(self, db_session, scrutiny):
         resp_ok = {
             "districtId": scrutiny["district_id"],
-            "votingDate": scrutiny["voting_date"].isoformat(),
-            "scrutinyDate": scrutiny["scrutiny_date"].isoformat(),
+            "votingDate": scrutiny["voting_date"],
+            "scrutinyDate": scrutiny["scrutiny_date"],
             "seats": scrutiny["seats"],
             "name": scrutiny["name"],
         }
@@ -293,7 +296,7 @@ class TestModels:
             "districtId": 1,
             "scrutinyId": scrutiny_record.id,
             "scrutinyName": scrutiny_record.name,
-            "calculationDate": dhondtresult["result_date"].isoformat(),
+            "calculationDate": dhondtresult["result_date"],
             "seatsResults": [
                 {
                     "pplistId": seats_ppl["politicalpartylist_id"],

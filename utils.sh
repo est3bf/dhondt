@@ -32,3 +32,6 @@ alias drest_ci_testing='downd && upd_ci_testing'
 
 alias manual_execution_ci_tests='upd_ci_testing;docker run --rm  --network host --name testing_dhondt msa_dhondt-dhondt bash -c "YAML=\$(pip show dhondt-method | grep Location | cut -d\   -f2); schemathesis run \$YAML/dhondt/web/dhondt.yaml --base-url=http://localhost:5000/dhondt/v1  --hypothesis-database=none --output-truncate=false --validate-schema=true --checks=all"'
 alias execute_ci_testing='dod; upd_ci_testing && sleep 2 && watch -n1 docker logs msa_dhondt-ci_testing-1'
+
+# documentation
+alias build_doc='docker compose -f .gci/docker-compose-doc.yml  -p msa_dhondt-doc up  --build doc'

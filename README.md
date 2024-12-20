@@ -102,8 +102,14 @@ This file contains many bash alias commands to perform all things
      $ clear_db
      ```
      **Warning!** Don't forget backup the database before execute this command or all information will be lost. 
-     
-
+          
+6. **Build Documentation**
+   The project use `Sphinx` for build a web-based documentation. To build the HTML files, you need to run:
+    ```
+    $ build_doc
+    ```
+    When it finishes, the files are under the folder `doc/build/html`. 
+    To watch the documentation, open `doc/build/html/index.html` with you preferred browser.
 
 ### Manually build and run containers
 

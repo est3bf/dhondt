@@ -1,0 +1,9 @@
+services:
+    doc: 
+        build:
+            context: ..
+            dockerfile: .gci/Dockerfile
+            target: docs
+            
+        volumes:
+            - $PWD:/usr/src/

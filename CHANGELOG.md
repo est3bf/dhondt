@@ -6,10 +6,17 @@ and the project versioning use [Semantic Versioning](https://semver.org/spec/v2.
 
 ## [Unreleased]
 
-## [0.2.0] - 2024-12-09
+## [0.2.2] - 2024-12-20
 
 ### Added
 
+* Implement Sphinx project documentation including API Redoc 
+
+## [0.2.1] - 2024-12-18
+
+### Added
+
+* Implement unit and CI tests
 
 ## [0.2.0] - 2024-12-09
 

@@ -74,7 +74,7 @@ This file contains many bash alias commands to perform all things
    ```
 
 4. **Executing unit and CI tests**
-    When we use those commands to execute the tests we can see at the end the execution report.
+    When we use those commands to execute tests we can see at the end the execution report.
    1. __Execute Unit tests__
      ```
      $ execute_unit_testing
@@ -84,14 +84,14 @@ This file contains many bash alias commands to perform all things
      $ execute_ci_testing
      ```
 5. **Backup Database**
-   We can backup and restore the database. A new folder **db_data** is created to store the the files.
+   We can backup and restore the database. A new folder **db_data** is created to store files.
    Each time that a new backup is created (executed), a new folder is created (named with the time) to store the information.
    **Note** Do not remove or delete this folder until execute the restore command. All data will be lost deleting the folder.
     1. __Backup__
      ```
      $ bkp_data
      ```
-    2. __Restore the database__
+    2. __Restore the database__****
      The following command will restore the last backuped database. 
      ```
      $ restore_last_data
@@ -110,12 +110,12 @@ This file contains many bash alias commands to perform all things
 We build the repo images using docker compose.
 The following is for build and run manually using docker commands.
 
-1. **Get docker running**.
+1. **Getting docker running**.**
     **Note:** do not forget to add your user to docker group:
     ```
-    $ sudo adduser youruser docker
+    $ sudo adduser youruser docker**
     ```
-2. **Build the image**:
+2. **Building the image**:
    1. __For production__:
         ```
         $ docker compose -f .gci/docker-compose.yml  -p [project name] build dhondt
@@ -150,7 +150,7 @@ The following is for build and run manually using docker commands.
         [project name] is the project name which the image and container will have.
         For example:
         ```
-        $ docker compose -f .gci/docker-compose.yml -f .gci/docker-compose-dev.yml -f .gci/docker-compose-testing.yml --profile ci_test -p msa_dhondt build dhondt ci_testing         
+       $ docker compose -f .gci/docker-compose.yml -f .gci/docker-compose-dev.yml -f .gci/docker-compose-testing.yml --profile ci_test -p [project name] build dhondt ci_testing          
         ```
 
     5. __Create docker volume for database__
@@ -158,7 +158,7 @@ The following is for build and run manually using docker commands.
         $ docker volume create data_postgres
         ```
         
-3. **Run containers**:
+3. **Running containers**:
    1. __For production__:
         ```
         $ docker compose -f .gci/docker-compose.yml  -p [project name] up -d 
@@ -196,7 +196,7 @@ The following is for build and run manually using docker commands.
         $ docker compose -f .gci/docker-compose.yml -f .gci/docker-compose-dev.yml -f .gci/docker-compose-testing.yml --profile ci_test -p msa_dhondt up -d         
         ```
 
-4. **Stop containers**
+4. **Stoping containers**
     ```
     $ docker compose -f .gci/docker-compose.yml -f .gci/docker-compose-dev.yml -f .gci/docker-compose-testing.yml -p [project name] down 
     ```

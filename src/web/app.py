@@ -34,6 +34,9 @@ logger = logging.getLogger(__name__)
 
 
 def create_app(test_config=None):
+    """
+    Create the application for API and view
+    """
     app = Flask(__name__)
 
     if test_config is None:

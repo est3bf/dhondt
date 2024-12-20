@@ -20,6 +20,17 @@ def init_service():
 
 
 def dhondt_calculation(political_parties, seats):
+    """Main business function of D'Hondt system
+
+    This function perform calculation of seats assigned to
+    each political party list (ppl) based on his votes.
+
+    :param political_parties: list of ppl dictionary (same like
+      API schema).
+    :param seats: Total seats available to be assigned
+    @return: list of dictionary that represent ppl and seats
+      obtained.
+    """
     logger.debug("Dhondt calculations for %s seats", seats)
     logger.debug("Political Parties list: %s", political_parties)
 
@@ -49,6 +60,14 @@ def dhondt_calculation(political_parties, seats):
 
 
 class DhondtService:
+    """Dhondt Service business layer class
+
+    This class is used to solve the business layer for D'Hondt API.
+
+    This follow the dependency injection pattern to inject the repository
+    control dependency.
+    """
+
     def __init__(self, repository: DhondtRepository):
         self.repository = repository
 

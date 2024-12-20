@@ -27,10 +27,28 @@ DB_PASSW = os.getenv("DB_PASS", "postgres")
 
 
 def init_repository(use_memory_db):
+    """Init the repository database
+
+    This function is used to instance the Database class Singleton in the controller module.
+    The goal of this function is to control the persistent or memory database type. Memory database is intended to be used only in unit testing.
+
+    :param use_memory_db: If not None type, the memory database is used.
+    """
     DB.init(DB_URL, DB_DATABASE, DB_USER, DB_PASSW, memory=use_memory_db)
 
 
 class DhondtRepository:
+    """
+    This class is used to decouple the business layer from r from the implementation
+    details of the database or repository.
+
+    This follow the repository pattern.
+
+    The SqlAlchemy ORM library controls the database and it's setting up by the *tabledefs* module and controller by the *controller* module.
+
+    The class interacts with the repository controller through database session to perform actions, which is provided by the constructor class call.
+    """
+
     def __init__(self, db_session):
         self.session = db_session
 

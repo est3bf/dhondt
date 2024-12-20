@@ -1,4 +1,14 @@
 class SingletonMeta(type):
+    """
+    Singleton metaclass.
+
+    Usage::
+
+        class MyClass(metaclass=Singleton):
+            ...
+
+    """
+
     _instances = {}
 
     def __call__(cls, *args, **kwargs):

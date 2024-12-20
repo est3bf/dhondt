@@ -33,10 +33,10 @@ class DB(SingletonMeta):
 
     default server: 127.0.0.1:5432
 
-    @param url: IP:PORT
-    @param database: database name
-    @param user: database user to login
-    @param passw: database passw to login
+    :param url: IP:PORT
+    :param database: database name
+    :param user: database user to login
+    :param passw: database passw to login
     """
 
     engine = None
